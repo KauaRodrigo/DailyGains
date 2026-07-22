@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+   ACTIVE
+   DEACTIVATE
+   BLOCKED
+}
+
+model Users {
+   id Int @id @default(autoincrement())
+   username String @unique
+   password String
+   status UserStatus
+   workout_plans Workout_Plans[]
+
+   @@map("users")
+}
+
+model Exercises {
+   id Int @id @default(autoincrement())
+   name String
+   is_active Boolean @default(true)
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+
+   // Relations
+   workout_plan_exercises Workout_Plan_Exercises[]
+
+   @@map("exercises")
+}
+
+model Workout_Plans {
+   id Int @id @default(autoincrement())
+   user_id Int
+   name String   
+   is_active Boolean @default(true)
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+
+   // Relations
+   user Users @relation(fields: [user_id], references: [id])
+   workout_plan_exercises Workout_Plan_Exercises[]
+
+   @@map("workout_plans")
+}
+
+model Workout_Plan_Exercises {
+   id Int @id @default(autoincrement())
+   workout_plan_id Int
+   exercise_id Int
+   sort_order Int
+   target_sets Int
+   target_reps Int
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+
+   // Relations
+   workout_plan Workout_Plans @relation(fields: [workout_plan_id], references: [id])
+   exercise Exercises @relation(fields: [exercise_id], references: [id])
+
+   @@map("workout_plan_exercises")
+}
